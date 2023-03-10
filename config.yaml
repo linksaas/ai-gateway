@@ -1,0 +1,20 @@
+port: 8080
+ssl:
+  enable: false
+  cert: your_ssl_cert
+  key: your_ssl_key
+secret: your_serv_secret
+dev: true
+tokenttl: 600
+checkscript: script/check.go
+provider: 
+  coding:
+    - backend: script://script/coding_provider.go #suport http:// and script://
+      checkscript: script/check.go
+      # support lang:python,c,cplusplus,java,csharp,visualbasic,javascript,sql,asm,php,r,go,matlab,swift,delphi,ruby,perl,objc,rust
+      complete: []
+      convert: []
+      explain: []
+      fixerror: []
+      gentest: []
+
