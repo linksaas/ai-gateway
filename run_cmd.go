@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/linksaas/ai-gateway/apiimpl/codingapi"
@@ -49,6 +50,30 @@ func initWeb(engine *gin.Engine) {
 	})
 }
 
+func checkToken(secret string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		if !strings.HasPrefix(ctx.Request.URL.Path, "/api") {
+			ctx.Next()
+			return
+		}
+		//api
+		if strings.HasPrefix(ctx.Request.URL.Path, "/api/dev/genToken") {
+			ctx.Next()
+			return
+		}
+		//check token
+		token := ctx.GetHeader("X-AuthToken")
+		contextValue, err := utils.DecodeToken(token, secret)
+		if err != nil {
+			utils.SendError(ctx, 403, err)
+			ctx.Abort()
+		} else {
+			ctx.Request.Header.Set("contextValue", contextValue)
+			ctx.Next()
+		}
+	}
+}
+
 func runGateWay(cmd *cobra.Command, args []string) error {
 	cfgPath, err := utils.GetAbsPath(runConfigFile)
 	if err != nil {
@@ -60,7 +85,7 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 	}
 	//steup gin
 	engine := gin.New()
-	engine.Use(gin.Recovery()) //TODO add authToken check
+	engine.Use(checkToken(cfg.Secret), gin.Recovery()) //TODO add authToken check
 	apiRoute := engine.Group("/api")
 	devRoute := apiRoute.Group("/dev")
 	devapi.Init(devRoute, cfg)

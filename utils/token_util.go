@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/thanhpk/randstr"
 )
 
 type TokenInfo struct {
@@ -18,8 +16,10 @@ type TokenInfo struct {
 	SignStr      string `yaml:"signStr"`
 }
 
-func GenToken(contextValue, secret string, ttl int) (string, error) {
-	randomStr := randstr.Hex(32)
+func GenToken(contextValue, randomStr, secret string, ttl int) (string, error) {
+	if len(randomStr) < 32 {
+		return "", fmt.Errorf("random string must have 32 chars at least")
+	}
 	expireTime := int64(-1)
 	if ttl > 0 {
 		expireTime = time.Now().Unix() + int64(ttl)

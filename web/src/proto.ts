@@ -1,7 +1,7 @@
 export const proto = `
 openapi: 3.0.0
 info:
-  version: 0.0.1
+  version: 0.0.2
   title: ai-proto
   description: ai proto for coder
   contact:
@@ -258,14 +258,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrInfo'
-  /api/dev/genToken/cap:
-    get:
+  /api/dev/cap:
+    post:
       tags:
         - dev
       summary: 获取ai能力列表
       description: 获取ai能力列表
       parameters:
         - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
           description: 成功
@@ -332,7 +338,6 @@ paths:
               required:
                 - contextValue
                 - randomStr
-                - secret
               properties:
                 contextValue:
                   type: string
@@ -340,9 +345,6 @@ paths:
                 randomStr:
                   type: string
                   description: 随机字符串，加密因子。需要32位长度以上
-                secret:
-                  type: string
-                  description: 共享密钥
       responses:
         '200':
           description: 成功

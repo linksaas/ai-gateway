@@ -6,5 +6,12 @@ import (
 )
 
 func Init(router *gin.RouterGroup, cfg *config.GateWayConfig) {
-	//TODO
+	router.POST("/genToken", func(ctx *gin.Context) {
+		handler := &GenTokenHandler{}
+		handler.process(ctx, cfg.Secret, cfg.TokenTtl, cfg.Dev)
+	})
+	router.POST("/cap", func(ctx *gin.Context) {
+		handler := &CapHandler{}
+		handler.process(ctx, &cfg.Provider)
+	})
 }
