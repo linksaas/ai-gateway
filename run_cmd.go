@@ -90,7 +90,10 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 	devRoute := apiRoute.Group("/dev")
 	devapi.Init(devRoute, cfg)
 	codingRoute := apiRoute.Group("/coding")
-	codingapi.Init(codingRoute, cfg)
+	err = codingapi.Init(codingRoute, cfg)
+	if err != nil {
+		return err
+	}
 	initWeb(engine)
 	//run server
 	serverAddr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)

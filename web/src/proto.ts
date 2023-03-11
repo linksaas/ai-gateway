@@ -1,7 +1,7 @@
 export const proto = `
 openapi: 3.0.0
 info:
-  version: 0.0.2
+  version: 0.0.3
   title: ai-proto
   description: ai proto for coder
   contact:
@@ -28,19 +28,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              type: object
-              required:
-                - beforeContent
-                - afterContent
-              properties:
-                beforeContent:
-                  type: string
-                  description: 编辑器光标前面的代码
-                afterContent:
-                  type: string
-                  description: 编辑器光标后面的代码
+              type: string
       responses:
         '200':
           description: 成功
@@ -56,6 +46,17 @@ paths:
                 items:
                   type: string
                 description: 生成代码候选列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -76,21 +77,13 @@ paths:
       parameters:
         - $ref: '#/components/parameters/AuthToken'
         - $ref: '#/components/parameters/Lang'
+        - $ref: '#/components/parameters/DestLang'
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              type: object
-              required:
-                - content
-                - destLang
-              properties:
-                content:
-                  type: string
-                  description: 代码内容
-                destLang:
-                  $ref: '#/components/schemas/Lang'
+              type: string
       responses:
         '200':
           description: 成功
@@ -106,6 +99,17 @@ paths:
                 items:
                   type: string
                 description: 生成代码候选列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -129,15 +133,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              type: object
-              required:
-                - content
-              properties:
-                content:
-                  type: string
-                  description: 代码内容
+              type: string
       responses:
         '200':
           description: 成功
@@ -153,6 +151,17 @@ paths:
                 items:
                   type: string
                 description: 生成解释结果候选列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -176,15 +185,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              type: object
-              required:
-                - content
-              properties:
-                content:
-                  type: string
-                  description: 报错内容
+              type: string
       responses:
         '200':
           description: 成功
@@ -200,6 +203,17 @@ paths:
                 items:
                   type: string
                 description: 修复方案候选列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -223,15 +237,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              type: object
-              required:
-                - content
-              properties:
-                content:
-                  type: string
-                  description: 代码内容
+              type: string
       responses:
         '200':
           description: 成功
@@ -247,6 +255,17 @@ paths:
                 items:
                   type: string
                 description: 生成代码候选列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -269,7 +288,7 @@ paths:
       requestBody:
         required: false
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
       responses:
@@ -280,37 +299,53 @@ paths:
               schema:
                 type: object
                 required:
-                  - completeLangList
-                  - genTestLangList
-                  - convertLangList
-                  - explainLangList
-                  - fixErrorLangList
+                  - coding
                 properties:
-                  completeLangList:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Lang'
-                    description: 代码补全支持的编程语言列表
-                  genTestLangList:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Lang'
-                    description: 生成测试代码支持的编程语言列表
-                  convertLangList:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Lang'
-                    description: 转换编程语言的支持列表
-                  explainLangList:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Lang'
-                    description: 代码解释支持的编程语言列表
-                  fixErrorLangList:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Lang'
-                    description: 根据错误提示给出修复方案支持的编程语言列表
+                  coding:
+                    type: object
+                    required:
+                      - completeLangList
+                      - genTestLangList
+                      - convertLangList
+                      - explainLangList
+                      - fixErrorLangList
+                    properties:
+                      completeLangList:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lang'
+                        description: 代码补全支持的编程语言列表
+                      genTestLangList:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lang'
+                        description: 生成测试代码支持的编程语言列表
+                      convertLangList:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lang'
+                        description: 转换编程语言的支持列表
+                      explainLangList:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lang'
+                        description: 代码解释支持的编程语言列表
+                      fixErrorLangList:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lang'
+                        description: 根据错误提示给出修复方案支持的编程语言列表
+        '403':
+          description: 没有权限
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
         '500':
           description: 失败
           headers:
@@ -332,7 +367,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
               required:
@@ -381,6 +416,32 @@ components:
       name: X-AuthToken
       schema:
         type: string
+      required: true
+    DestLang:
+      in: query
+      name: destLang
+      schema:
+        type: string
+        enum:
+          - python
+          - c
+          - cplusplus
+          - java
+          - csharp
+          - visualbasic
+          - javascript
+          - sql
+          - asm
+          - php
+          - r
+          - go
+          - matlab
+          - swift
+          - delphi
+          - ruby
+          - perl
+          - objc
+          - rust
       required: true
     Lang:
       in: path

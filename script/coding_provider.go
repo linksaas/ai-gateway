@@ -1,7 +1,7 @@
 package script
 
 //process /api/coding/complete/:lang
-func complete(lang, beforeContent, afterContent string) []string {
+func complete(lang, content string) []string {
 	//TODO
 	return nil
 }

@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.9.0
-	github.com/linksaas/ai-proto-go v0.0.0-20230310070510-7463ada55c84
+	github.com/linksaas/ai-proto-go v0.0.0-20230311035643-26fc0caf9832
 	github.com/spf13/cobra v1.6.1
 	github.com/traefik/yaegi v0.15.0
 	gopkg.in/yaml.v3 v3.0.1

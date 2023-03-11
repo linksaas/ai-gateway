@@ -1,29 +1,31 @@
 package utils
 
 import (
-	"encoding/json"
 	"io"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/linksaas/ai-proto-go/client"
+	ai_proto "github.com/linksaas/ai-proto-go"
 )
-
-func ReadRequestBody(ctx *gin.Context, reqBody interface{}) error {
-	defer ctx.Request.Body.Close()
-	data, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(data, reqBody)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func SendError(ctx *gin.Context, code int, err error) {
 	errMsg := err.Error()
-	ctx.JSON(code, &client.ErrInfo{
+	ctx.JSON(code, &ai_proto.ErrInfo{
 		ErrMsg: &errMsg,
 	})
+}
+
+func CopyResponse(ctx *gin.Context, response *http.Response) {
+	defer response.Body.Close()
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		SendError(ctx, 500, err)
+		return
+	}
+	ctx.Writer.WriteHeader(response.StatusCode)
+	for k, v := range response.Header {
+		ctx.Writer.Header()[k] = v
+	}
+
+	ctx.Writer.Write(data)
 }
