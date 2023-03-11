@@ -35,7 +35,7 @@ func (script *BackendScript) CallComplete(lang, content string) ([]string, error
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.complete")
+	f, err := script.engine.Eval("script.Complete")
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (script *BackendScript) CallConvert(lang, destLang, content string) ([]stri
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.convert")
+	f, err := script.engine.Eval("script.Convert")
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (script *BackendScript) CallExplain(lang, content string) ([]string, error)
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.explain")
+	f, err := script.engine.Eval("script.Explain")
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (script *BackendScript) CallFixError(lang, errStr string) ([]string, error)
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.fixerror")
+	f, err := script.engine.Eval("script.Fixerror")
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (script *BackendScript) CallGenTest(lang, content string) ([]string, error)
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.gentest")
+	f, err := script.engine.Eval("script.Gentest")
 	if err != nil {
 		return nil, err
 	}

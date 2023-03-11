@@ -34,7 +34,7 @@ func (script *CheckScript) Exec(apiUrl, content string) (bool, error) {
 	script.lock.Lock()
 	defer script.lock.Unlock()
 
-	f, err := script.engine.Eval("script.checkContent")
+	f, err := script.engine.Eval("script.CheckContent")
 	if err != nil {
 		return false, err
 	}
