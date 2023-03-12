@@ -2,6 +2,7 @@ package codingapi
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
@@ -9,6 +10,9 @@ import (
 	"github.com/linksaas/ai-gateway/config"
 	"github.com/linksaas/ai-gateway/utils"
 	"github.com/traefik/yaegi/interp"
+	"github.com/traefik/yaegi/stdlib"
+	"github.com/traefik/yaegi/stdlib/syscall"
+	"github.com/traefik/yaegi/stdlib/unsafe"
 )
 
 type BackendScript struct {
@@ -21,8 +25,34 @@ func newBackendScript(path string) (*BackendScript, error) {
 	if err != nil {
 		return nil, err
 	}
-	engine := interp.New(interp.Options{})
-	_, err = engine.EvalPath(absPath)
+	engine := interp.New(interp.Options{
+		GoPath:    os.Getenv("GOROOT"),
+		BuildTags: []string{},
+		Env:       os.Environ(),
+	})
+	err = engine.Use(stdlib.Symbols)
+	if err != nil {
+		return nil, err
+	}
+	err = engine.Use(interp.Symbols)
+	if err != nil {
+		return nil, err
+	}
+	err = engine.Use(syscall.Symbols)
+	if err != nil {
+		return nil, err
+	}
+	os.Setenv("YAEGI_SYSCALL", "1")
+	err = engine.Use(unsafe.Symbols)
+	if err != nil {
+		return nil, err
+	}
+	os.Setenv("YAEGI_UNSAFE", "1")
+	scriptData, err := os.ReadFile(absPath)
+	if err != nil {
+		return nil, err
+	}
+	_, err = engine.Eval(string(scriptData))
 	if err != nil {
 		return nil, err
 	}

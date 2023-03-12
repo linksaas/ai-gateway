@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/linksaas/ai-proto-go v0.0.0-20230311035643-26fc0caf9832
 	github.com/spf13/cobra v1.6.1
-	github.com/traefik/yaegi v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -27,6 +26,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/traefik/yaegi v0.15.1-0.20230306154606-8efc4f07359d // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect

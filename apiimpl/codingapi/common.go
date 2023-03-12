@@ -21,9 +21,6 @@ const (
 func checkContent(ctx *gin.Context, providerList []config.CodingProviderConfig, funcType CODE_FUNC_TYPE, lang, content string, checker *ContentChecker) (matchProviderIndex int, done bool) {
 	matchProviderIndex = -1
 	for providerIndex, provider := range providerList {
-		if len(provider.CompleteLangList) == 0 {
-			continue
-		}
 		match := false
 		cmpLangList := []string{}
 		if funcType == CODE_FUNC_COMPLETE {
