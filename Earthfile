@@ -40,4 +40,5 @@ docker:
   ENV GOPATH=/go
   ENV GOROOT=/go
   ENTRYPOINT /app/gateway run
+  EXPOSE 8080
   SAVE IMAGE --push linksaas/ai-gateway:$TAG 
