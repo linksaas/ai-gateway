@@ -22,9 +22,18 @@ type CommonResponse struct {
 	Result  CommonResponseResult `json:"result"`
 }
 
+func adjustLang(lang string) string {
+	if lang == "cplusplus" {
+		return "C++"
+	} else if lang == "csharp" {
+		return "C#"
+	}
+	return strings.ToUpper(lang)[:1] + lang[1:]
+}
+
 // process /api/coding/complete/:lang
 func Complete(lang, content string) []string {
-	lang = strings.ToUpper(lang)[:1] + lang[1:]
+	lang = adjustLang(lang)
 
 	payload := map[string]interface{}{
 		"n":      1,
@@ -67,8 +76,8 @@ func Complete(lang, content string) []string {
 
 // process /api/coding/convert/:lang
 func Convert(lang, destLang, content string) []string {
-	lang = strings.ToUpper(lang)[:1] + lang[1:]
-	destLang = strings.ToUpper(destLang)[:1] + destLang[1:]
+	lang = adjustLang(lang)
+	destLang = adjustLang(destLang)
 	payload := map[string]interface{}{
 		"src_lang": lang,
 		"dst_lang": destLang,
@@ -111,7 +120,7 @@ func Convert(lang, destLang, content string) []string {
 
 // process /api/coding/explain/:lang
 func Explain(lang, content string) []string {
-	lang = strings.ToUpper(lang)[:1] + lang[1:]
+	lang = adjustLang(lang)
 	payload := map[string]interface{}{
 		"apikey":    "",
 		"apisecret": "",
