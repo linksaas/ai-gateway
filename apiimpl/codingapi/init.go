@@ -1,12 +1,13 @@
 package codingapi
 
 import (
+	"github.com/arthurkiller/rollingwriter"
 	"github.com/gin-gonic/gin"
 	"github.com/linksaas/ai-gateway/config"
 )
 
-func Init(router *gin.RouterGroup, cfg *config.GateWayConfig) error {
-	checker, err := newContentChecker(cfg)
+func Init(router *gin.RouterGroup, cfg *config.GateWayConfig, logWriter rollingwriter.RollingWriter) error {
+	checker, err := newContentChecker(cfg, logWriter)
 	if err != nil {
 		return err
 	}

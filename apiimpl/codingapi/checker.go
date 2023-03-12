@@ -1,11 +1,14 @@
 package codingapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"reflect"
 	"sync"
+	"time"
 
+	"github.com/arthurkiller/rollingwriter"
 	"github.com/linksaas/ai-gateway/config"
 	"github.com/linksaas/ai-gateway/utils"
 	"github.com/traefik/yaegi/interp"
@@ -78,9 +81,10 @@ func (script *CheckScript) Exec(apiUrl, content string) (bool, error) {
 type ContentChecker struct {
 	globalChecker   *CheckScript
 	codingCheckList []*CheckScript
+	logWriter       rollingwriter.RollingWriter
 }
 
-func newContentChecker(cfg *config.GateWayConfig) (*ContentChecker, error) {
+func newContentChecker(cfg *config.GateWayConfig, logWriter rollingwriter.RollingWriter) (*ContentChecker, error) {
 	var globalChecker *CheckScript
 	codingCheckList := []*CheckScript{}
 	var err error
@@ -106,6 +110,7 @@ func newContentChecker(cfg *config.GateWayConfig) (*ContentChecker, error) {
 	return &ContentChecker{
 		globalChecker:   globalChecker,
 		codingCheckList: codingCheckList,
+		logWriter:       logWriter,
 	}, nil
 }
 
@@ -123,5 +128,19 @@ func (checker *ContentChecker) CheckCodeContent(apiUrl string, providerIndex int
 	if checkScript == nil {
 		return true, nil
 	}
-	return checkScript.Exec(apiUrl, content)
+	allow, err := checkScript.Exec(apiUrl, content)
+	if err != nil {
+		return allow, err
+	}
+	obj := map[string]interface{}{
+		"apiUrl":  apiUrl,
+		"content": content,
+		"allow":   allow,
+	}
+	logData, err := json.Marshal(obj)
+	if err == nil {
+		timeStr := time.Now().Format(time.DateTime)
+		fmt.Fprintf(checker.logWriter, "%s %s", timeStr, string(logData))
+	}
+	return allow, nil
 }

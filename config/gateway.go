@@ -194,6 +194,7 @@ type GateWayConfig struct {
 	Ssl         SslConfig      `yaml:"ssl"`
 	Secret      string         `yaml:"secret"`
 	Dev         bool           `yaml:"dev"`
+	LogDir      string         `yaml:"logdir"`
 	TokenTtl    int            `yaml:"tokenttl"`
 	CheckScript string         `yaml:"checkscript"`
 	Provider    ProviderConfig `yaml:"provider"`

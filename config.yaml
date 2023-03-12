@@ -5,6 +5,7 @@ ssl:
   key: your_ssl_key
 secret: your_serv_secret
 dev: true
+logdir: logs
 tokenttl: 600
 checkscript: script/check.go
 provider: 
