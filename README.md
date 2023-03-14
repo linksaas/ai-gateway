@@ -10,7 +10,11 @@
 # 使用
 
 ## 部署
-//TODO
+使用docker部署[ai-gateway](https://hub.docker.com/r/linksaas/ai-gateway)
+
+```bash
+docker run -d -p 8080:8080 linksaas/ai-gateway:0.0.1
+```
 
 ## 配置
 config.yaml是唯一的配置文件
