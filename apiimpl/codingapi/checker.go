@@ -139,7 +139,7 @@ func (checker *ContentChecker) CheckCodeContent(apiUrl string, providerIndex int
 	}
 	logData, err := json.Marshal(obj)
 	if err == nil {
-		timeStr := time.Now().Format(time.DateTime)
+		timeStr := time.Now().Format(time.RFC3339)
 		fmt.Fprintf(checker.logWriter, "%s %s", timeStr, string(logData))
 	}
 	return allow, nil

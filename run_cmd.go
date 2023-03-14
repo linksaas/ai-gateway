@@ -19,6 +19,7 @@ import (
 )
 
 var runConfigFile string
+var runPort uint16
 
 //go:embed web/dist
 var webFs embed.FS
@@ -123,7 +124,11 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 	}
 	initWeb(engine)
 	//run server
-	serverAddr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
+	port := cfg.Port
+	if runPort != 0 {
+		port = runPort
+	}
+	serverAddr := fmt.Sprintf("0.0.0.0:%d", port)
 	if cfg.Ssl.Enable {
 		err = engine.RunTLS(serverAddr, cfg.Ssl.Cert, cfg.Ssl.Key)
 		if err != nil {
@@ -140,4 +145,5 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 
 func init() {
 	runCmd.Flags().StringVar(&runConfigFile, "config", "config.yaml", "set config file")
+	runCmd.Flags().Uint16Var(&runPort, "port", 0, "override port in config file")
 }
