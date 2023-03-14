@@ -3,71 +3,41 @@ package codingapi
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
-	"sync"
 	"time"
 
 	"github.com/arthurkiller/rollingwriter"
 	"github.com/linksaas/ai-gateway/config"
 	"github.com/linksaas/ai-gateway/utils"
 	"github.com/traefik/yaegi/interp"
-	"github.com/traefik/yaegi/stdlib"
-	"github.com/traefik/yaegi/stdlib/syscall"
-	"github.com/traefik/yaegi/stdlib/unsafe"
 )
 
 type CheckScript struct {
-	lock   sync.Mutex
-	engine *interp.Interpreter
+	engineChan chan *interp.Interpreter
 }
 
 func newCheckScript(path string) (*CheckScript, error) {
-	absPath, err := utils.GetAbsPath(path)
-	if err != nil {
-		return nil, err
-	}
-	engine := interp.New(interp.Options{
-		GoPath:    os.Getenv("GOROOT"),
-		BuildTags: []string{},
-		Env:       os.Environ(),
-	})
-	err = engine.Use(stdlib.Symbols)
-	if err != nil {
-		return nil, err
-	}
-	err = engine.Use(interp.Symbols)
-	if err != nil {
-		return nil, err
-	}
-	err = engine.Use(syscall.Symbols)
-	if err != nil {
-		return nil, err
-	}
-	os.Setenv("YAEGI_SYSCALL", "1")
-	err = engine.Use(unsafe.Symbols)
-	if err != nil {
-		return nil, err
-	}
-	os.Setenv("YAEGI_UNSAFE", "1")
-	scriptData, err := os.ReadFile(absPath)
-	if err != nil {
-		return nil, err
-	}
-	_, err = engine.Eval(string(scriptData))
-	if err != nil {
-		return nil, err
+	engineChan := make(chan *interp.Interpreter, 16)
+	for i := 0; i < 16; i++ {
+		script, err := utils.LoadScript(path)
+		if err != nil {
+			close(engineChan)
+			return nil, err
+		}
+		engineChan <- script
 	}
 	return &CheckScript{
-		engine: engine,
+		engineChan: engineChan,
 	}, nil
 }
 
 func (script *CheckScript) Exec(apiUrl, content string) (bool, error) {
-	script.lock.Lock()
-	defer script.lock.Unlock()
+	engine := <-script.engineChan
+	defer func() {
+		script.engineChan <- engine
+	}()
 
-	f, err := script.engine.Eval("script.CheckContent")
+	f, err := engine.Eval("script.CheckContent")
 	if err != nil {
 		return false, err
 	}

@@ -7,46 +7,12 @@ import (
 	"strings"
 
 	"github.com/linksaas/ai-gateway/utils"
-	"github.com/traefik/yaegi/interp"
-	"github.com/traefik/yaegi/stdlib"
-	"github.com/traefik/yaegi/stdlib/syscall"
-	"github.com/traefik/yaegi/stdlib/unsafe"
 	"gopkg.in/yaml.v3"
 )
 
 func tryLoadScript(path string) error {
-	i := interp.New(interp.Options{
-		GoPath:    os.Getenv("GOROOT"),
-		BuildTags: []string{},
-		Env:       os.Environ(),
-	})
-	err := i.Use(stdlib.Symbols)
-	if err != nil {
-		return err
-	}
-	err = i.Use(interp.Symbols)
-	if err != nil {
-		return err
-	}
-	err = i.Use(syscall.Symbols)
-	if err != nil {
-		return err
-	}
-	os.Setenv("YAEGI_SYSCALL", "1")
-	err = i.Use(unsafe.Symbols)
-	if err != nil {
-		return err
-	}
-	os.Setenv("YAEGI_UNSAFE", "1")
-	scriptData, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	_, err = i.Eval(string(scriptData))
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := utils.LoadScript(path)
+	return err
 }
 
 type SslConfig struct {
