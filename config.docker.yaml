@@ -3,19 +3,19 @@ ssl:
   enable: false
   cert: your_ssl_cert
   key: your_ssl_key
-secret: your_serv_secret
-dev: true
+secret: use_linksaas_ai_gateway_for_great_develop_teams
+dev: false
 logdir: logs
-tokenttl: 600
+tokenttl: 3600
 checkscript: script/check.go
 provider: 
   coding:
     - backend: script://script/coding_provider.go #suport http:// and script://
       checkscript: script/check.go
       # support lang:python,c,cplusplus,java,csharp,visualbasic,javascript,sql,asm,php,r,go,matlab,swift,delphi,ruby,perl,objc,rust
-      complete: []
-      convert: []
-      explain: []
+      complete: [python,c,cplusplus,java,csharp,javascript,r,go,rust]
+      convert: [python,go,java,javascript,cplusplus,csharp]
+      explain: [python,c,cplusplus,java,csharp,javascript,r,go,rust]
       fixerror: []
       gentest: []
 

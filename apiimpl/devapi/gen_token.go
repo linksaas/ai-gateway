@@ -5,8 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/linksaas/ai-gateway/utils"
-	"github.com/linksaas/ai-proto-go/client"
+	ai_proto "github.com/linksaas/ai-proto-go"
 )
+
+type GenTokenRequest struct {
+	ContextValue string `form:"contextValue"`
+	RandomStr    string `form:"randomStr"`
+}
 
 type GenTokenHandler struct{}
 
@@ -15,18 +20,19 @@ func (handler *GenTokenHandler) process(ctx *gin.Context, secret string, tokenTt
 		utils.SendError(ctx, 500, fmt.Errorf("not allowed in product mode"))
 		return
 	}
-	reqBody := &client.ApiDevGenTokenPostRequest{}
-	err := utils.ReadRequestBody(ctx, reqBody)
+	req := &GenTokenRequest{}
+	err := ctx.Bind(req)
 	if err != nil {
 		utils.SendError(ctx, 500, err)
 		return
 	}
-	token, err := utils.GenToken(reqBody.ContextValue, reqBody.RandomStr, secret, tokenTtl)
+
+	token, err := utils.GenToken(req.ContextValue, req.RandomStr, secret, tokenTtl)
 	if err != nil {
 		utils.SendError(ctx, 500, err)
 		return
 	}
-	ctx.JSON(200, &client.ApiDevGenTokenPost200Response{
+	ctx.JSON(200, &ai_proto.ApiDevGenTokenPost200Response{
 		Token: token,
 	})
 }

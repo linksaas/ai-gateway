@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/arthurkiller/rollingwriter"
 	"github.com/gin-gonic/gin"
 	"github.com/linksaas/ai-gateway/apiimpl/codingapi"
 	"github.com/linksaas/ai-gateway/apiimpl/devapi"
@@ -17,6 +19,7 @@ import (
 )
 
 var runConfigFile string
+var runPort uint16
 
 //go:embed web/dist
 var webFs embed.FS
@@ -74,6 +77,29 @@ func checkToken(secret string) gin.HandlerFunc {
 	}
 }
 
+func initLogger(logDir string) (rollingwriter.RollingWriter, error) {
+	if logDir == "" {
+		logDir = "logs"
+	}
+	logDir, err := utils.GetAbsPath(logDir)
+	if err != nil {
+		return nil, err
+	}
+	os.MkdirAll(logDir, 0700) //skip error check
+	return rollingwriter.NewWriterFromConfig(&rollingwriter.Config{
+		LogPath:                logDir,
+		TimeTagFormat:          "20060102",
+		FileName:               "checker",
+		MaxRemain:              30,
+		RollingPolicy:          rollingwriter.TimeRolling,
+		RollingTimePattern:     "0 0 0 * * *",
+		RollingVolumeSize:      "100M",
+		WriterMode:             "async",
+		BufferWriterThershould: 8 * 1024 * 1024,
+		Compress:               true,
+	})
+}
+
 func runGateWay(cmd *cobra.Command, args []string) error {
 	cfgPath, err := utils.GetAbsPath(runConfigFile)
 	if err != nil {
@@ -83,6 +109,8 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	//init log
+	logWriter, err := initLogger(cfg.LogDir)
 	//steup gin
 	engine := gin.New()
 	engine.Use(checkToken(cfg.Secret), gin.Recovery()) //TODO add authToken check
@@ -90,10 +118,17 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 	devRoute := apiRoute.Group("/dev")
 	devapi.Init(devRoute, cfg)
 	codingRoute := apiRoute.Group("/coding")
-	codingapi.Init(codingRoute, cfg)
+	err = codingapi.Init(codingRoute, cfg, logWriter)
+	if err != nil {
+		return err
+	}
 	initWeb(engine)
 	//run server
-	serverAddr := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
+	port := cfg.Port
+	if runPort != 0 {
+		port = runPort
+	}
+	serverAddr := fmt.Sprintf("0.0.0.0:%d", port)
 	if cfg.Ssl.Enable {
 		err = engine.RunTLS(serverAddr, cfg.Ssl.Cert, cfg.Ssl.Key)
 		if err != nil {
@@ -110,4 +145,5 @@ func runGateWay(cmd *cobra.Command, args []string) error {
 
 func init() {
 	runCmd.Flags().StringVar(&runConfigFile, "config", "config.yaml", "set config file")
+	runCmd.Flags().Uint16Var(&runPort, "port", 0, "override port in config file")
 }

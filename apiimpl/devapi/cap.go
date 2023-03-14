@@ -3,7 +3,7 @@ package devapi
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/linksaas/ai-gateway/config"
-	"github.com/linksaas/ai-proto-go/client"
+	ai_proto "github.com/linksaas/ai-proto-go"
 )
 
 type CapHandler struct{}
@@ -32,36 +32,38 @@ func (handler *CapHandler) process(ctx *gin.Context, cfg *config.ProviderConfig)
 		}
 	}
 
-	completeList := []client.Lang{}
+	completeList := []ai_proto.Lang{}
 	for k := range completeMap {
-		completeList = append(completeList, client.Lang(k))
+		completeList = append(completeList, ai_proto.Lang(k))
 	}
 
-	genTestList := []client.Lang{}
+	genTestList := []ai_proto.Lang{}
 	for k := range genTestMap {
-		genTestList = append(genTestList, client.Lang(k))
+		genTestList = append(genTestList, ai_proto.Lang(k))
 	}
 
-	convertList := []client.Lang{}
+	convertList := []ai_proto.Lang{}
 	for k := range convertMap {
-		convertList = append(convertList, client.Lang(k))
+		convertList = append(convertList, ai_proto.Lang(k))
 	}
 
-	explainList := []client.Lang{}
+	explainList := []ai_proto.Lang{}
 	for k := range explainMap {
-		explainList = append(explainList, client.Lang(k))
+		explainList = append(explainList, ai_proto.Lang(k))
 	}
 
-	fixErrorList := []client.Lang{}
+	fixErrorList := []ai_proto.Lang{}
 	for k := range fixErrorMap {
-		fixErrorList = append(fixErrorList, client.Lang(k))
+		fixErrorList = append(fixErrorList, ai_proto.Lang(k))
 	}
 
-	ctx.JSON(200, &client.ApiDevCapPost200Response{
-		CompleteLangList: completeList,
-		GenTestLangList:  genTestList,
-		ConvertLangList:  convertList,
-		ExplainLangList:  explainList,
-		FixErrorLangList: fixErrorList,
+	ctx.JSON(200, &ai_proto.ApiDevCapPost200Response{
+		Coding: ai_proto.ApiDevCapPost200ResponseCoding{
+			CompleteLangList: completeList,
+			GenTestLangList:  genTestList,
+			ConvertLangList:  convertList,
+			ExplainLangList:  explainList,
+			FixErrorLangList: fixErrorList,
+		},
 	})
 }

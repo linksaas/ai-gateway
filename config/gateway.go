@@ -8,12 +8,41 @@ import (
 
 	"github.com/linksaas/ai-gateway/utils"
 	"github.com/traefik/yaegi/interp"
+	"github.com/traefik/yaegi/stdlib"
+	"github.com/traefik/yaegi/stdlib/syscall"
+	"github.com/traefik/yaegi/stdlib/unsafe"
 	"gopkg.in/yaml.v3"
 )
 
 func tryLoadScript(path string) error {
-	i := interp.New(interp.Options{})
-	_, err := i.EvalPath(path)
+	i := interp.New(interp.Options{
+		GoPath:    os.Getenv("GOROOT"),
+		BuildTags: []string{},
+		Env:       os.Environ(),
+	})
+	err := i.Use(stdlib.Symbols)
+	if err != nil {
+		return err
+	}
+	err = i.Use(interp.Symbols)
+	if err != nil {
+		return err
+	}
+	err = i.Use(syscall.Symbols)
+	if err != nil {
+		return err
+	}
+	os.Setenv("YAEGI_SYSCALL", "1")
+	err = i.Use(unsafe.Symbols)
+	if err != nil {
+		return err
+	}
+	os.Setenv("YAEGI_UNSAFE", "1")
+	scriptData, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	_, err = i.Eval(string(scriptData))
 	if err != nil {
 		return err
 	}
@@ -101,7 +130,7 @@ func (cfg *CodingProviderConfig) check() error {
 	if strings.HasPrefix(cfg.Backend, "http://") {
 		//do nothing
 	} else if strings.HasPrefix(cfg.Backend, "script://") {
-		path, _ := strings.CutPrefix(cfg.Backend, "script://")
+		path := strings.TrimPrefix(cfg.Backend, "script://")
 		absPath, err := utils.GetAbsPath(path)
 		if err != nil {
 			return err
@@ -165,6 +194,7 @@ type GateWayConfig struct {
 	Ssl         SslConfig      `yaml:"ssl"`
 	Secret      string         `yaml:"secret"`
 	Dev         bool           `yaml:"dev"`
+	LogDir      string         `yaml:"logdir"`
 	TokenTtl    int            `yaml:"tokenttl"`
 	CheckScript string         `yaml:"checkscript"`
 	Provider    ProviderConfig `yaml:"provider"`
